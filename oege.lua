@@ -8340,7 +8340,48 @@ if al.Icon then
 al:SetIcon(al.Icon)
 end
 
-local ao=ae("TextLabel",{
+local descText = ak.Desc or ak.Description
+local titleContainer
+if descText and descText ~= "" then
+titleContainer = ae("Frame",{
+BackgroundTransparency=1,
+AutomaticSize="Y",
+Size=UDim2.new(1, am and -(al.IconSize+8) or 0, 0, 0),
+},{
+ae("TextLabel",{
+BackgroundTransparency=1,
+TextXAlignment=al.TextXAlignment,
+AutomaticSize="Y",
+TextSize=al.TextSize,
+TextTransparency=0.05,
+ThemeTag={
+TextColor3="Text",
+},
+FontFace=Font.new(aa.Font,al.FontWeight),
+Text=al.Title,
+Size=UDim2.new(1,0,0,0),
+TextWrapped=true,
+}),
+ae("TextLabel", {
+BackgroundTransparency = 1,
+TextXAlignment = al.TextXAlignment or "Left",
+AutomaticSize = "Y",
+TextSize = 13,
+ThemeTag = { TextColor3 = "Text" },
+TextTransparency = 0.55,
+FontFace = Font.new(aa.Font, Enum.FontWeight.Medium),
+Text = descText,
+Size = UDim2.new(1, 0, 0, 0),
+TextWrapped = true,
+LayoutOrder = 1,
+}),
+ae("UIListLayout",{
+Padding=UDim.new(0,3),
+FillDirection="Vertical",
+}),
+})
+else
+titleContainer = ae("TextLabel",{
 BackgroundTransparency=1,
 TextXAlignment=al.TextXAlignment,
 AutomaticSize="Y",
@@ -8350,17 +8391,12 @@ ThemeTag={
 TextColor3="Text",
 },
 FontFace=Font.new(aa.Font,al.FontWeight),
-
-
 Text=al.Title,
-Size=UDim2.new(
-1,
-0,
-0,
-0
-),
+Size=UDim2.new(1,0,0,0),
 TextWrapped=true,
 })
+end
+local ao = titleContainer
 
 
 local function UpdateTitleSize()
@@ -8375,13 +8411,14 @@ ao.Size=UDim2.new(1,ap,0,0)
 end
 
 
+local hasDesc = descText and descText ~= ""
 local ap=aa.NewRoundFrame(ak.Window.ElementConfig.UICorner,"Squircle",{
 Size=UDim2.new(1,0,0,0),
 BackgroundTransparency=1,
 Parent=ak.Parent,
 ClipsDescendants=true,
 AutomaticSize="Y",
-ImageTransparency=al.Box and.93 or 1,
+ImageTransparency=(al.Box or hasDesc) and.93 or 1,
 ThemeTag={
 ImageColor3="Text",
 },
@@ -8393,9 +8430,11 @@ AutomaticSize=Expandable and nil or"Y",
 Text="",
 Name="Top",
 },{
-al.Box and ae("UIPadding",{
+(al.Box or hasDesc) and ae("UIPadding",{
 PaddingLeft=UDim.new(0,ak.Window.ElementConfig.UIPadding),
 PaddingRight=UDim.new(0,ak.Window.ElementConfig.UIPadding),
+PaddingTop=hasDesc and UDim.new(0,10) or nil,
+PaddingBottom=hasDesc and UDim.new(0,10) or nil,
 })or nil,
 am,
 ao,
@@ -9344,11 +9383,12 @@ local aj=a.load'U'
 function aa.New(ak,al,am,an,ao)
 local ap={
 Title=ak.Title or"Section",
+Desc=ak.Desc,
 Icon=ak.Icon,
 IconThemed=ak.IconThemed,
 Opened=ak.Opened or false,
 
-HeaderSize=42,
+HeaderSize=ak.Desc and 0 or 42,
 IconSize=18,
 
 Expandable=false,
@@ -9388,19 +9428,79 @@ ImageTransparency=.7,
 })
 })
 
+local at
+if ap.Desc then
+at=af("Frame",{
+Size=UDim2.new(1,aq and(-ap.IconSize-10)*2 or(-ap.IconSize-10),0,0),
+AutomaticSize="Y",
+BackgroundTransparency=1,
+},{
+af("TextLabel",{
+Text=ap.Title,
+TextXAlignment="Left",
+Size=UDim2.new(1,0,0,0),
+AutomaticSize="Y",
+ThemeTag={
+TextColor3="Text",
+},
+FontFace=Font.new(ae.Font,Enum.FontWeight.SemiBold),
+TextSize=14,
+BackgroundTransparency=1,
+TextTransparency=.2,
+TextWrapped=true
+}),
+af("TextLabel",{
+Text=ap.Desc,
+TextXAlignment="Left",
+Size=UDim2.new(1,0,0,0),
+AutomaticSize="Y",
+ThemeTag={
+TextColor3="Text",
+},
+FontFace=Font.new(ae.Font,Enum.FontWeight.Medium),
+TextSize=12,
+BackgroundTransparency=1,
+TextTransparency=.6,
+TextWrapped=true,
+LayoutOrder=1
+}),
+af("UIListLayout",{
+FillDirection="Vertical",
+Padding=UDim.new(0,2)
+})
+})
+end
+
+local au
+if ap.Desc then
+au=af("ImageLabel",{
+Size=UDim2.new(1,-6,1,-6),
+Position=UDim2.new(0,3,0,3),
+BackgroundTransparency=1,
+Image=ae.Shapes["Squircle-Outline"],
+ImageColor3=Color3.fromRGB(255,255,255),
+ImageTransparency=.85,
+ScaleType="Slice",
+SliceCenter=Rect.new(128,128,128,128)
+})
+end
+
 local as=af("Frame",{
-Size=UDim2.new(1,0,0,ap.HeaderSize),
+Size=ap.Desc and UDim2.new(1,0,0,0) or UDim2.new(1,0,0,ap.HeaderSize),
+AutomaticSize=ap.Desc and"Y"or"None",
 BackgroundTransparency=1,
 Parent=al,
-ClipsDescendants=true,
+ClipsDescendants=false,
 },{
+au,
 af("TextButton",{
-Size=UDim2.new(1,0,0,ap.HeaderSize),
+Size=ap.Desc and UDim2.new(1,0,0,0) or UDim2.new(1,0,0,ap.HeaderSize),
+AutomaticSize=ap.Desc and"Y"or"None",
 BackgroundTransparency=1,
 Text="",
 },{
 aq,
-af("TextLabel",{
+at or af("TextLabel",{
 Text=ap.Title,
 TextXAlignment="Left",
 Size=UDim2.new(
@@ -9430,6 +9530,8 @@ ar,
 af("UIPadding",{
 PaddingLeft=UDim.new(0,11),
 PaddingRight=UDim.new(0,11),
+PaddingTop=ap.Desc and UDim.new(0,10)or UDim.new(0,0),
+PaddingBottom=ap.Desc and UDim.new(0,10)or UDim.new(0,0),
 })
 }),
 af("Frame",{
@@ -9438,7 +9540,7 @@ Size=UDim2.new(1,0,0,0),
 AutomaticSize="Y",
 Name="Content",
 Visible=true,
-Position=UDim2.new(0,0,0,ap.HeaderSize)
+Position=ap.Desc and UDim2.new(0,0,1,0)or UDim2.new(0,0,0,ap.HeaderSize)
 },{
 af("UIListLayout",{
 FillDirection="Vertical",
@@ -9461,9 +9563,15 @@ end
 function ap.Open(au)
 if ap.Expandable then
 ap.Opened=true
+if ap.Desc then
+ah(as,0.33,{
+Size=UDim2.new(1,0,0,as.TextButton.AbsoluteSize.Y+(as.Content.AbsoluteSize.Y/an))
+},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+else
 ah(as,0.33,{
 Size=UDim2.new(1,0,0,ap.HeaderSize+(as.Content.AbsoluteSize.Y/an))
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
 
 ah(ar.ImageLabel,0.1,{Rotation=180},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
@@ -9471,9 +9579,15 @@ end
 function ap.Close(au)
 if ap.Expandable then
 ap.Opened=false
+if ap.Desc then
+ah(as,0.26,{
+Size=UDim2.new(1,0,0,as.TextButton.AbsoluteSize.Y)
+},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+else
 ah(as,0.26,{
 Size=UDim2.new(1,0,0,ap.HeaderSize)
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
 ah(ar.ImageLabel,0.1,{Rotation=0},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
 end
